@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <img src="assets/logo.svg" alt="Your Car Your Way" class="h-10 w-auto" />
+        <img src="assets/logo.png" alt="Your Car Your Way" class="h-10 w-auto" />
         <span class="ml-3 text-2xl font-bold text-primary-600">Your Car Your Way</span>
       </div>
 
@@ -29,39 +29,37 @@
       <!-- User Actions -->
       <div class="flex items-center space-x-4">
         @if (!isLoggedIn) {
-          <button routerLink="/auth/login" class="btn-secondary">Login</button>
-          <button routerLink="/auth/register" class="btn-primary">Sign Up</button>
-        }
+        <button routerLink="/auth/login" class="btn-secondary">Login</button>
+        <button routerLink="/auth/register" class="btn-primary">Sign Up</button>
+        } @if (isLoggedIn) {
+        <div class="relative" #userMenu>
+          <button
+            (click)="toggleMenu()"
+            class="flex items-center space-x-2 text-gray-700 hover:text-primary-600"
+          >
+            <img [src]="userAvatar" alt="User" class="h-10 w-10 rounded-full" />
+            <span class="font-medium">{{ userName }}</span>
+          </button>
 
-        @if (isLoggedIn) {
-          <div class="relative" #userMenu>
+          <!-- Dropdown Menu -->
+          @if (isMenuOpen) {
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+            <a routerLink="/user/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+              My Profile
+            </a>
+            <a routerLink="/user/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+              Settings
+            </a>
+            <hr class="my-2" />
             <button
-              (click)="toggleMenu()"
-              class="flex items-center space-x-2 text-gray-700 hover:text-primary-600"
+              (click)="logout()"
+              class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
             >
-              <img [src]="userAvatar" alt="User" class="h-10 w-10 rounded-full" />
-              <span class="font-medium">{{ userName }}</span>
+              Logout
             </button>
-
-            <!-- Dropdown Menu -->
-            @if (isMenuOpen) {
-              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                <a routerLink="/user/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                  My Profile
-                </a>
-                <a routerLink="/user/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                  Settings
-                </a>
-                <hr class="my-2" />
-                <button
-                  (click)="logout()"
-                  class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            }
           </div>
+          }
+        </div>
         }
       </div>
 
@@ -80,18 +78,18 @@
 
     <!-- Mobile Menu -->
     @if (isMobileMenuOpen) {
-      <div class="md:hidden mt-4 pb-4">
-        <a routerLink="/rental/search" class="block py-2 text-gray-700 hover:text-primary-600">
-          Search Cars
-        </a>
-        <a
-          routerLink="/rental/my-reservations"
-          class="block py-2 text-gray-700 hover:text-primary-600"
-        >
-          My Reservations
-        </a>
-        <a routerLink="/support" class="block py-2 text-gray-700 hover:text-primary-600"> Support </a>
-      </div>
+    <div class="md:hidden mt-4 pb-4">
+      <a routerLink="/rental/search" class="block py-2 text-gray-700 hover:text-primary-600">
+        Search Cars
+      </a>
+      <a
+        routerLink="/rental/my-reservations"
+        class="block py-2 text-gray-700 hover:text-primary-600"
+      >
+        My Reservations
+      </a>
+      <a routerLink="/support" class="block py-2 text-gray-700 hover:text-primary-600"> Support </a>
+    </div>
     }
   </nav>
 </header>
