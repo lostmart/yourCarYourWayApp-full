@@ -1,0 +1,97 @@
+<header class="bg-white shadow-md sticky top-0 z-50">
+  <nav class="container mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <img src="assets/logo.svg" alt="Your Car Your Way" class="h-10 w-auto" />
+        <span class="ml-3 text-2xl font-bold text-primary-600">Your Car Your Way</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a
+          routerLink="/rental/search"
+          class="text-gray-700 hover:text-primary-600 transition-colors"
+        >
+          Search Cars
+        </a>
+        <a
+          routerLink="/rental/my-reservations"
+          class="text-gray-700 hover:text-primary-600 transition-colors"
+        >
+          My Reservations
+        </a>
+        <a routerLink="/support" class="text-gray-700 hover:text-primary-600 transition-colors">
+          Support
+        </a>
+      </div>
+
+      <!-- User Actions -->
+      <div class="flex items-center space-x-4">
+        @if (!isLoggedIn) {
+          <button routerLink="/auth/login" class="btn-secondary">Login</button>
+          <button routerLink="/auth/register" class="btn-primary">Sign Up</button>
+        }
+
+        @if (isLoggedIn) {
+          <div class="relative" #userMenu>
+            <button
+              (click)="toggleMenu()"
+              class="flex items-center space-x-2 text-gray-700 hover:text-primary-600"
+            >
+              <img [src]="userAvatar" alt="User" class="h-10 w-10 rounded-full" />
+              <span class="font-medium">{{ userName }}</span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            @if (isMenuOpen) {
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                <a routerLink="/user/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  My Profile
+                </a>
+                <a routerLink="/user/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Settings
+                </a>
+                <hr class="my-2" />
+                <button
+                  (click)="logout()"
+                  class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden text-gray-700" (click)="toggleMobileMenu()">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    @if (isMobileMenuOpen) {
+      <div class="md:hidden mt-4 pb-4">
+        <a routerLink="/rental/search" class="block py-2 text-gray-700 hover:text-primary-600">
+          Search Cars
+        </a>
+        <a
+          routerLink="/rental/my-reservations"
+          class="block py-2 text-gray-700 hover:text-primary-600"
+        >
+          My Reservations
+        </a>
+        <a routerLink="/support" class="block py-2 text-gray-700 hover:text-primary-600"> Support </a>
+      </div>
+    }
+  </nav>
+</header>
