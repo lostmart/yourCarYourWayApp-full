@@ -18,6 +18,7 @@ export const routes: Routes = [
       { path: 'async', component: AsyncContact },
       { path: 'sync', component: SyncContact },
       { path: 'faq', component: Faq },
+      { path: '**', redirectTo: 'async' },
     ],
   },
   {
