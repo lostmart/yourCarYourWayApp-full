@@ -1,33 +1,67 @@
 <div class="min-h-screen bg-gray-900">
-  <section class="relative min-h-screen flex items-center justify-center">
+  <section class="relative min-h-screen flex justify-center">
     <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
 
     <div class="relative z-10 container mx-auto px-4 text-center text-white">
-      <h1 class="text-6xl font-bold mb-6">Select your stupid problem</h1>
+      <h1 class="text-5xl font-bold m-6">Select your preferred support method</h1>
 
-      <div class="grid grid-cols-3 gap-4 p-8">
+      <div
+        class="flex items-center justify-center space-x-8 py-4 bg-gray-900 border-b border-gray-800"
+      >
         <a
           routerLink="/support/sync"
           routerLinkActive="active"
-          class="bg-primary-600 hover:bg-primary-700 text-white font-bold p-8 rounded-lg text-lg"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex justify-center items-center space-x-2 text-gray-400 hover:text-white transition-colors p-2 rounded-md min-w-[145px]"
         >
-          Chat with Support
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            style="max-width: 24px; fill: currentColor"
+            viewBox="0 0 640 640"
+          >
+            <path
+              d="M416 208C416 305.2 330 384 224 384C197.3 384 171.9 379 148.8 370L67.2 413.2C57.9 418.1 46.5 416.4 39 409C31.5 401.6 29.8 390.1 34.8 380.8L70.4 313.6C46.3 284.2 32 247.6 32 208C32 110.8 118 32 224 32C330 32 416 110.8 416 208zM416 576C321.9 576 243.6 513.9 227.2 432C347.2 430.5 451.5 345.1 463 229.3C546.3 248.5 608 317.6 608 400C608 439.6 593.7 476.2 569.6 505.6L605.2 572.8C610.1 582.1 608.4 593.5 601 601C593.6 608.5 582.1 610.2 572.8 605.2L491.2 562C468.1 571 442.7 576 416 576z"
+            />
+          </svg>
+          <span class="text-sm font-medium">Chat with Support</span>
         </a>
+
         <a
           routerLink="/support/async"
           routerLinkActive="active"
-          class="bg-primary-600 hover:bg-primary-700 text-white font-bold p-8 rounded-lg text-lg"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex justify-center items-center space-x-2 text-gray-400 hover:text-white transition-colors p-2 rounded-md min-w-[145px]"
         >
-          Email us
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            style="max-width: 24px; fill: currentColor"
+            viewBox="0 0 640 640"
+          >
+            <path
+              d="M112 128C85.5 128 64 149.5 64 176C64 191.1 71.1 205.3 83.2 214.4L291.2 370.4C308.3 383.2 331.7 383.2 348.8 370.4L556.8 214.4C568.9 205.3 576 191.1 576 176C576 149.5 554.5 128 528 128L112 128zM64 260L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 260L377.6 408.8C343.5 434.4 296.5 434.4 262.4 408.8L64 260z"
+            />
+          </svg>
+          <span class="text-sm font-medium">Email us</span>
         </a>
+
         <a
           routerLink="/support/faq"
           routerLinkActive="active"
-          class="bg-primary-600 hover:bg-primary-700 text-white font-bold p-8 rounded-lg text-lg"
+          class="flex justify-center items-center space-x-2 text-gray-400 hover:text-white transition-colors p-2 rounded-md min-w-[145px]"
         >
-          FAQ
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            style="width: 24px; fill: currentColor; height: 24px"
+            viewBox="0 0 640 640"
+          >
+            <path
+              d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"
+            />
+          </svg>
+          <span class="text-sm font-medium">F.A.Q.</span>
         </a>
       </div>
+
       <!-- This is crucial for child routes -->
       <router-outlet></router-outlet>
     </div>
