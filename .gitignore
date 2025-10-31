@@ -1,39 +1,39 @@
 # ============================================
-# FRONTEND (Angular)
+# front-angEND (Angular)
 # ============================================
 
-front/node_modules/
-front/dist/
-front/.angular/
-front/.sass-cache/
-front/connect.lock
-front/coverage/
-front/libpeerconnection.log
-front/npm-debug.log
-front/yarn-error.log
-front/testem.log
-front/typings/
-front/.DS_Store
-front/Thumbs.db
+front-ang/node_modules/
+front-ang/dist/
+front-ang/.angular/
+front-ang/.sass-cache/
+front-ang/connect.lock
+front-ang/coverage/
+front-ang/libpeerconnection.log
+front-ang/npm-debug.log
+front-ang/yarn-error.log
+front-ang/testem.log
+front-ang/typings/
+front-ang/.DS_Store
+front-ang/Thumbs.db
 
 # IDEs and editors
-front/.idea/
-front/.project
-front/.classpath
-front/.c9/
-front/*.launch
-front/.settings/
-front/*.sublime-workspace
-front/.vscode/*
-!front/.vscode/settings.json
-!front/.vscode/tasks.json
-!front/.vscode/launch.json
-!front/.vscode/extensions.json
-front/.history/*
+front-ang/.idea/
+front-ang/.project
+front-ang/.classpath
+front-ang/.c9/
+front-ang/*.launch
+front-ang/.settings/
+front-ang/*.sublime-workspace
+front-ang/.vscode/*
+!front-ang/.vscode/settings.json
+!front-ang/.vscode/tasks.json
+!front-ang/.vscode/launch.json
+!front-ang/.vscode/extensions.json
+front-ang/.history/*
 
 # System Files
-front/.DS_Store
-front/Thumbs.db
+front-ang/.DS_Store
+front-ang/Thumbs.db
 
 # ============================================
 # BACKEND (Spring Boot / Java)
