@@ -8,7 +8,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Controller handling chat messages via WebSocket.
@@ -20,15 +20,13 @@ public class ChatController {
 
     /**
      * Handles chat messages sent to /app/chat.send
-     * Adds timestamp and broadcasts to /topic/public
+     * Adds server-side timestamp and broadcasts to /topic/public
      */
     @MessageMapping("/chat.send")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        // Set timestamp if not provided
-        if (chatMessage.getTimestamp() == null) {
-            chatMessage.setTimestamp(LocalDateTime.now());
-        }
+        // Always set server-side timestamp for consistency
+        chatMessage.setTimestamp(Instant.now());
         return chatMessage;
     }
 
@@ -43,11 +41,10 @@ public class ChatController {
         // Store username in WebSocket session
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         
-        // Set timestamp and ensure type is JOIN
-        chatMessage.setTimestamp(LocalDateTime.now());
+        // Set server-side timestamp and ensure type is JOIN
+        chatMessage.setTimestamp(Instant.now());
         chatMessage.setType(MessageType.JOIN);
         
         return chatMessage;
     }
-    
 }

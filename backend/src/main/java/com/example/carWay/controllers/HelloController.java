@@ -22,7 +22,7 @@ public class HelloController {
             .type(MessageType.CHAT)
             .content("Test message")
             .sender("TestUser")
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC))
             .build();
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Listens for WebSocket disconnect events and notifies other users
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Component
 public class WebSocketEventListener {
  
-     private final SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     public WebSocketEventListener(SimpMessageSendingOperations messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
@@ -31,7 +31,7 @@ public class WebSocketEventListener {
             ChatMessage chatMessage = ChatMessage.builder()
                 .type(MessageType.LEAVE)
                 .sender(username)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())  // Changed from LocalDateTime conversion
                 .build();
             
             messagingTemplate.convertAndSend("/topic/public", chatMessage);

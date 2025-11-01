@@ -1,10 +1,17 @@
 package com.example.carWay.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.List;
 
 /**
  * WebSocket configuration for the chat functionality.
@@ -16,13 +23,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  * 1. STOMP endpoints - Where clients connect
  * 2. Message broker - How messages are routed
  * 3. Application destination prefix - Routing for incoming messages
+ * 4. Message converters - How JSON messages are serialized/deserialized
  */
 
- @Configuration
-@EnableWebSocketMessageBroker  // Enables WebSocket message handling backed by message broker
+@Configuration
+@EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     
-     /**
+    /**
      * Register STOMP endpoints that clients will use to connect to the WebSocket server.
      * 
      * Endpoint: /ws
@@ -35,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * - For modern browsers, native WebSocket will be used
      * 
      * CORS:
-     * - setAllowedOrigins("*") allows connections from any origin
+     * - setAllowedOriginPatterns("*") allows connections from any origin
      * - For PoC, this is fine
      * - In production, specify exact origins: setAllowedOrigins("https://yourcarway.com")
      * 
@@ -43,10 +51,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")           // Clients connect to ws://localhost:8080/ws
-                //.setAllowedOrigins("*")       // Allow all origins (PoC only!)
-                .setAllowedOriginPatterns("*")  // Allow all origins (PoC only!)
-                .withSockJS();                // Enable SockJS fallback
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     /**
@@ -79,7 +86,46 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");  // Prefix for client → server
-        registry.enableSimpleBroker("/topic");               // Prefix for server → clients
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/topic");
+    }
+
+    /**
+     * Configure message converters for WebSocket communication.
+     * 
+     * This is critical for proper JSON serialization/deserialization of messages.
+     * 
+     * Problem being solved:
+     * - By default, Spring's WebSocket message converter doesn't handle Java 8 date/time types
+     * - Angular sends timestamps in ISO-8601 format: "2025-11-01T19:15:34.730Z"
+     * - Without JavaTimeModule, Jackson can't deserialize this into Instant
+     * 
+     * Solution:
+     * - Register JavaTimeModule to teach Jackson about Instant, LocalDateTime, etc.
+     * - Disable WRITE_DATES_AS_TIMESTAMPS to use ISO-8601 strings (human-readable)
+     * 
+     * This ensures:
+     * - Client → Server: ISO-8601 strings are properly parsed into Instant
+     * - Server → Client: Instant is serialized back to ISO-8601 strings
+     * 
+     * @param messageConverters the list of message converters
+     * @return false to keep default converters in addition to this one
+     */
+    @Override
+    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+        // Create ObjectMapper with Java 8 date/time support
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
+        // Create Jackson message converter with configured ObjectMapper
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setObjectMapper(objectMapper);
+        
+        // Add our converter to the list
+        messageConverters.add(converter);
+        
+        // Return false to keep default converters as well
+        return false;
     }
 }

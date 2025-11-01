@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, FormsModule],
   templateUrl: './sync-contact.html',
   styleUrls: ['./sync-contact.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush, // CRITICAL: Use OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SyncContact implements OnInit, OnDestroy {
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
@@ -38,23 +38,21 @@ export class SyncContact implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('Component: ngOnInit called');
 
-    // Subscribe to messages
     this.subs.push(
       this.chatService.messages$.subscribe((msgs) => {
         console.log('Component: messages$ emitted, count:', msgs.length);
         this.messages = msgs;
-        this.cdr.markForCheck(); // CRITICAL: Mark for check instead of detectChanges
+        this.cdr.markForCheck();
         setTimeout(() => this.scrollToBottom(), 0);
       })
     );
 
-    // Subscribe to connection status
     this.subs.push(
       this.chatService.connectionStatus$.subscribe((status) => {
         console.log('Component: connectionStatus$ emitted:', status);
         this.isConnected = status === 'connected';
         this.isConnecting = status === 'connecting';
-        this.cdr.markForCheck(); // CRITICAL: Mark for check
+        this.cdr.markForCheck();
         console.log(
           'Component: isConnected =',
           this.isConnected,
@@ -125,6 +123,40 @@ export class SyncContact implements OnInit, OnDestroy {
 
   isUserMessage(message: ChatMessage): boolean {
     return message.sender === this.username;
+  }
+
+  isSystemMessage(message: ChatMessage): boolean {
+    return message.type === 'JOIN' || message.type === 'LEAVE';
+  }
+
+  getSenderInitials(sender: string): string {
+    return sender
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  getSenderColor(sender: string): string {
+    // Generate consistent color based on sender name hash
+    let hash = 0;
+    for (let i = 0; i < sender.length; i++) {
+      hash = sender.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const colors = [
+      'from-purple-500 to-pink-500',
+      'from-blue-500 to-cyan-500',
+      'from-green-500 to-emerald-500',
+      'from-yellow-500 to-orange-500',
+      'from-red-500 to-rose-500',
+      'from-indigo-500 to-purple-500',
+      'from-teal-500 to-green-500',
+      'from-orange-500 to-red-500',
+    ];
+
+    return colors[Math.abs(hash) % colors.length];
   }
 
   trackByMessageId(index: number, message: ChatMessage): string {
