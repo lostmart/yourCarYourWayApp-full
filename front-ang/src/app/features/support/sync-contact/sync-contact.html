@@ -1,26 +1,41 @@
 <!-- Login Screen -->
-<div *ngIf="!isConnected" class="login-container">
-  <div style="position: fixed; top: 190px; right: 10px; background: rgb(51, 51, 51); padding: 10px">
+<div *ngIf="!isConnected" class="login-container flex flex-col items-center justify-center gap-4">
+  <div
+    style="position: fixed; bottom: 120px; right: 10px; background: rgb(51, 51, 51); padding: 10px"
+  >
     DEBUG: isConnected = {{ isConnected }}, isConnecting = {{ isConnecting }}
   </div>
-  <h2>Join Chat</h2>
+  <h2 class="mt-8">Join Chat</h2>
   <input
+    class="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 w-[300px] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ng-untouched ng-pristine ng-invalid"
     type="text"
     [(ngModel)]="username"
     placeholder="Enter your name"
     (keyup.enter)="connect()"
     [disabled]="isConnecting"
   />
-  <button (click)="connect()" [disabled]="isConnecting || !username.trim()">
+  <button
+    (click)="connect()"
+    [disabled]="isConnecting || !username.trim()"
+    class="w-[300px] bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+  >
     {{ isConnecting ? 'Connecting...' : 'Join Chat' }}
   </button>
 </div>
 
 <!-- Chat Screen -->
-<div *ngIf="isConnected" class="chat-container">
-  <div class="chat-header">
+<div
+  *ngIf="isConnected"
+  class="flex flex-col h-[calc(100vh-200px)] bg-gray-900 text-white rounded-lg shadow-2xl max-w-full mx-auto mb-8"
+>
+  <div class="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-600 to-blue-500">
     <h3>Chat - {{ username }}</h3>
-    <button (click)="disconnect()">Leave</button>
+    <button
+      class="bg-gray-800 hover:bg-gray-600 text-white font-semibold py-4 rounded-lg transition-all min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed"
+      (click)="disconnect()"
+    >
+      Leave
+    </button>
   </div>
 
   <div #chatContainer class="messages-container">
