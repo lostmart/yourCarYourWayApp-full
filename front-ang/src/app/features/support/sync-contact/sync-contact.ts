@@ -1,17 +1,15 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef, // ← Add this
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface ChatMessage {
-  id: number;
-  sender: 'bot' | 'user';
-  senderName: string;
-  message: string;
-  timestamp: string;
-  hasLink?: boolean;
-  linkText?: string;
-  linkUrl?: string;
-}
+import { ChatService, ChatMessage } from '../../../core/services/chat.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sync-contact',
@@ -20,78 +18,75 @@ interface ChatMessage {
   templateUrl: './sync-contact.html',
   styleUrls: ['./sync-contact.scss'],
 })
-export class SyncContact {
+export class SyncContact implements OnInit, OnDestroy {
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
-  private botResponses: string[] = [
-    'I understand. Let me help you with that.',
-    "That's a great question. Here's what you can do...",
-    'I see. Have you tried restarting the device?',
-    'Thanks for providing that information. Let me check on this for you.',
-    "I'm here to help! Could you provide more details?",
-  ];
+  messages: ChatMessage[] = [];
+  newMessage = '';
+  username = '';
+  isConnected = false;
+  isConnecting = false;
 
-  private currentResponseIndex = 0;
-  private messageIdCounter = 7;
+  private subs: Subscription[] = [];
 
-  messages: ChatMessage[] = [
-    {
-      id: 1,
-      sender: 'bot',
-      senderName: 'Ache-Me Bot',
-      message: 'Hi Lorraine, How can I help you?',
-      timestamp: '12:17 PM',
-    },
-    {
-      id: 2,
-      sender: 'user',
-      senderName: 'Lorraine',
-      message: 'I have printer issues',
-      timestamp: '12:17 PM',
-    },
-    {
-      id: 3,
-      sender: 'bot',
-      senderName: 'Ache-Me Bot',
-      message: "I'm sorry to hear this. May I know the issue with your printer.",
-      timestamp: '12:18 PM',
-    },
-    {
-      id: 4,
-      sender: 'user',
-      senderName: 'Lorraine',
-      message: 'Issue with paper roles',
-      timestamp: '12:19 PM',
-    },
-  ];
+  constructor(
+    private chatService: ChatService,
+    private cdr: ChangeDetectorRef // ← Inject this
+  ) {}
 
-  newMessage: string = '';
+  ngOnInit(): void {
+    this.subs.push(
+      this.chatService.messages$.subscribe((msgs) => {
+        this.messages = msgs;
+        setTimeout(() => this.scrollToBottom(), 0);
+        this.cdr.detectChanges(); // ← Add this
+      }),
 
-  trackByMessageId(index: number, message: ChatMessage): number {
-    return message.id;
+      this.chatService.connectionStatus$.subscribe((status) => {
+        console.log('UI: connectionStatus$', status);
+        this.isConnected = status === 'connected';
+        this.isConnecting = status === 'connecting';
+        this.cdr.detectChanges(); // ← CRITICAL: Force UI update
+      })
+    );
+  }
+  
+  ngOnDestroy(): void {
+    this.subs.forEach((s) => s.unsubscribe()); // ← CRITICAL FIX
+    this.disconnect();
   }
 
-  sendMessage() {
-    if (!this.newMessage.trim()) {
+  connect(): void {
+    if (!this.username.trim()) {
+      alert('Please enter a username');
       return;
     }
 
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: this.messageIdCounter++,
-      sender: 'user',
-      senderName: 'Lorraine',
-      message: this.newMessage.trim(),
-      timestamp: this.getCurrentTime(),
-    };
+    // DO NOT SET isConnecting HERE — let observable do it
+    this.chatService
+      .connect(this.username.trim())
+      .then(() => {
+        console.log('Connected! UI will update via observable.');
+      })
+      .catch((err) => {
+        console.error('Failed:', err);
+        alert('Connection failed.');
+        // Let observable set 'disconnected'
+      });
+  }
 
-    this.messages = [...this.messages, userMessage];
+  disconnect(): void {
+    this.chatService.disconnect();
+    this.isConnected = false;
+    this.isConnecting = false;
+    this.username = '';
+    this.messages = [];
+  }
+
+  sendMessage(): void {
+    if (!this.newMessage.trim() || !this.isConnected) return;
+    this.chatService.sendMessage(this.newMessage.trim());
     this.newMessage = '';
-
-    setTimeout(() => this.scrollToBottom(), 100);
-
-    // TODO: Replace with WebSocket send
-    // this.chatService.sendMessage(userMessage.message);
   }
 
   private scrollToBottom(): void {
@@ -100,25 +95,21 @@ export class SyncContact {
     }
   }
 
-  private getCurrentTime(): string {
-    const now = new Date();
-    let hours = now.getHours();
-    const minutes = now.getMinutes();
+  getMessageTime(timestamp: string): string {
+    const date = new Date(timestamp);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
-
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-
+    hours = hours % 12 || 12;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
-
     return `${hours}:${minutesStr} ${ampm}`;
   }
 
-  // TODO: This will be replaced with WebSocket subscription
-  // ngOnInit() {
-  //   this.chatService.messages$.subscribe((message: ChatMessage) => {
-  //     this.messages = [...this.messages, message];
-  //     setTimeout(() => this.scrollToBottom(), 100);
-  //   });
-  // }
+  isUserMessage(message: ChatMessage): boolean {
+    return message.sender === this.username;
+  }
+
+  trackByMessageId(index: number, message: ChatMessage): string {
+    return message.timestamp + message.sender;
+  }
 }

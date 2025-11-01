@@ -1,114 +1,59 @@
-<div
-  class="flex flex-col h-[calc(100vh-200px)] bg-gray-900 text-white rounded-lg shadow-2xl max-w-full mx-auto mb-8"
->
-  <!-- Chat Header (same as above) -->
-  <div class="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-600 to-blue-500">
-    <!-- ... header content ... -->
+<!-- Login Screen -->
+<div *ngIf="!isConnected" class="login-container">
+  <div style="position: fixed; top: 190px; right: 10px; background: rgb(51, 51, 51); padding: 10px">
+    DEBUG: isConnected = {{ isConnected }}, isConnecting = {{ isConnecting }}
+  </div>
+  <h2>Join Chat</h2>
+  <input
+    type="text"
+    [(ngModel)]="username"
+    placeholder="Enter your name"
+    (keyup.enter)="connect()"
+    [disabled]="isConnecting"
+  />
+  <button (click)="connect()" [disabled]="isConnecting || !username.trim()">
+    {{ isConnecting ? 'Connecting...' : 'Join Chat' }}
+  </button>
+</div>
+
+<!-- Chat Screen -->
+<div *ngIf="isConnected" class="chat-container">
+  <div class="chat-header">
+    <h3>Chat - {{ username }}</h3>
+    <button (click)="disconnect()">Leave</button>
   </div>
 
-  <!-- Chat Messages Container -->
-  <div #chatContainer class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-800">
+  <div #chatContainer class="messages-container">
     <div
-      *ngFor="let msg of messages; trackBy: trackByMessageId"
-      [ngClass]="msg.sender === 'user' ? 'justify-end' : 'justify-start'"
-      class="flex items-end space-x-3"
+      *ngFor="let message of messages; trackBy: trackByMessageId"
+      class="message"
+      [class.user-message]="isUserMessage(message)"
+      [class.bot-message]="!isUserMessage(message)"
+      [class.system-message]="message.type !== 'CHAT'"
     >
-      <!-- Bot Message -->
-      <ng-container *ngIf="msg.sender === 'bot'">
-        <div
-          class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center flex-shrink-0"
-        >
-          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M2 5a2 2 0 012-2h7a2 2 0 012 2vChat4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-            />
-          </svg>
-        </div>
+      <div *ngIf="message.type === 'CHAT'" class="message-bubble">
+        <div class="message-sender">{{ message.sender }}</div>
+        <div class="message-content">{{ message.content }}</div>
+        <div class="message-time">{{ getMessageTime(message.timestamp) }}</div>
+      </div>
 
-        <div class="flex-1">
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="text-sm font-semibold text-gray-300">{{ msg.senderName }}</span>
-            <span class="text-xs text-gray-500">{{ msg.timestamp }}</span>
-          </div>
-          <div class="bg-gray-700 rounded-2xl rounded-tl-none p-3 max-w-xs">
-            <p class="text-sm text-gray-100">
-              {{ msg.message }}
-              <a
-                *ngIf="msg.hasLink"
-                [href]="msg.linkUrl"
-                class="text-blue-400 hover:text-blue-300 underline ml-1"
-              >
-                {{ msg.linkText }}
-              </a>
-            </p>
-          </div>
-        </div>
-      </ng-container>
+      <div *ngIf="message.type === 'JOIN'" class="system-notification">
+        {{ message.sender }} joined the chat
+      </div>
 
-      <!-- User Message -->
-      <ng-container *ngIf="msg.sender === 'user'">
-        <div class="flex-1 flex flex-col items-end">
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="text-xs text-gray-500">{{ msg.timestamp }}</span>
-            <span class="text-sm font-semibold text-gray-300">{{ msg.senderName }}</span>
-          </div>
-          <div class="bg-indigo-600 rounded-2xl rounded-tr-none p-3 max-w-xs">
-            <p class="text-sm text-white">{{ msg.message }}</p>
-          </div>
-        </div>
-
-        <div
-          class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"
-        >
-          <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-
-  <!-- Input Section -->
-  <div class="border-t border-gray-700 bg-gray-800">
-    <div class="p-4">
-      <div class="flex items-center space-x-2 bg-gray-700 rounded-full px-4 py-2">
-        <input
-          type="text"
-          [(ngModel)]="newMessage"
-          (keyup.enter)="sendMessage()"
-          placeholder="Write a message"
-          class="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-sm"
-        />
-
-        <button class="p-2 hover:bg-gray-600 rounded-full transition-colors">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-            />
-          </svg>
-        </button>
-
-        <button
-          (click)="sendMessage()"
-          class="p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-colors"
-        >
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
-        </button>
+      <div *ngIf="message.type === 'LEAVE'" class="system-notification">
+        {{ message.sender }} left the chat
       </div>
     </div>
+  </div>
+
+  <div class="input-container">
+    <input
+      type="text"
+      [(ngModel)]="newMessage"
+      placeholder="Type a message..."
+      (keyup.enter)="sendMessage()"
+    />
+    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">Send</button>
   </div>
 </div>
