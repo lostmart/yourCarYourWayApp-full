@@ -1,9 +1,10 @@
 <!-- Login Screen -->
 <div *ngIf="!isConnected" class="login-container flex flex-col items-center justify-center gap-4">
+  <!-- Chat Header (same as above) -->
   <div
-    style="position: fixed; bottom: 120px; right: 10px; background: rgb(51, 51, 51); padding: 10px"
+    class="flex items-center justify-center p-4 bg-gradient-to-r from-indigo-600 to-blue-500 w-full mb-8"
   >
-    DEBUG: isConnected = {{ isConnected }}, isConnecting = {{ isConnecting }}
+    <h3>Welcome You Direct Live Support</h3>
   </div>
   <h2 class="mt-8">Join Chat</h2>
   <input
@@ -28,6 +29,8 @@
   *ngIf="isConnected"
   class="flex flex-col h-[calc(100vh-200px)] bg-gray-900 text-white rounded-lg shadow-2xl max-w-full mx-auto mb-8"
 >
+  <!-- Chat Header (same as above) -->
+
   <div class="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-600 to-blue-500">
     <h3>Chat - {{ username }}</h3>
     <button
@@ -38,7 +41,7 @@
     </button>
   </div>
 
-  <div #chatContainer class="messages-container">
+  <div #chatContainer class="h-[calc(100vh-200px)] bg-gray-800 p-4 overflow-y-auto flex-1">
     <div
       *ngFor="let message of messages; trackBy: trackByMessageId"
       class="message"
@@ -46,11 +49,31 @@
       [class.bot-message]="!isUserMessage(message)"
       [class.system-message]="message.type !== 'CHAT'"
     >
-      <div *ngIf="message.type === 'CHAT'" class="message-bubble">
-        <div class="message-sender">{{ message.sender }}</div>
-        <div class="message-content">{{ message.content }}</div>
-        <div class="message-time">{{ getMessageTime(message.timestamp) }}</div>
-      </div>
+      <ng-container *ngIf="message.type === 'CHAT'" class="flex items-end">
+        <div class="flex-1 flex flex-col items-end">
+          <div class="flex items-center space-x-2 mb-1">
+            <span class="text-xs text-gray-500">{{ getMessageTime(message.timestamp) }}</span>
+            <span class="text-sm font-semibold text-gray-300">{{ message.sender }}</span>
+          </div>
+          <div class="flex flex-row items-center space-x-3">
+            <div class="bg-indigo-600 rounded-2xl rounded-tr-none p-3 max-w-xs">
+              <p class="text-sm text-white">{{ message.content }}</p>
+            </div>
+
+            <div
+              class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"
+            >
+              <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </ng-container>
 
       <div *ngIf="message.type === 'JOIN'" class="system-notification">
         {{ message.sender }} joined the chat
@@ -62,13 +85,20 @@
     </div>
   </div>
 
-  <div class="input-container">
+  <div class="border-t border-gray-700 bg-gray-800 w-full p-2 flex items-center">
     <input
       type="text"
       [(ngModel)]="newMessage"
       placeholder="Type a message..."
       (keyup.enter)="sendMessage()"
+      class="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
     />
-    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">Send</button>
+    <button
+      class="p-2 mx-4 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-colors min-w-[120px] text-white font-semibold"
+      (click)="sendMessage()"
+      [disabled]="!newMessage.trim()"
+    >
+      Send
+    </button>
   </div>
 </div>
