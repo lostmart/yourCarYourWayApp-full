@@ -29,8 +29,7 @@
   *ngIf="isConnected"
   class="flex flex-col h-[calc(100vh-200px)] bg-gray-900 text-white rounded-lg shadow-2xl max-w-full mx-auto mb-8"
 >
-  <!-- Chat Header (same as above) -->
-
+  <!-- Chat Header -->
   <div class="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-600 to-blue-500">
     <h3>Chat - {{ username }}</h3>
     <button
@@ -42,50 +41,85 @@
   </div>
 
   <div #chatContainer class="h-[calc(100vh-200px)] bg-gray-800 p-4 overflow-y-auto flex-1">
-    <div
-      *ngFor="let message of messages; trackBy: trackByMessageId"
-      class="message"
-      [class.user-message]="isUserMessage(message)"
-      [class.bot-message]="!isUserMessage(message)"
-      [class.system-message]="message.type !== 'CHAT'"
-    >
-      <ng-container *ngIf="message.type === 'CHAT'" class="flex items-end">
-        <div class="flex-1 flex flex-col items-end">
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="text-xs text-gray-500">{{ getMessageTime(message.timestamp) }}</span>
-            <span class="text-sm font-semibold text-gray-300">{{ message.sender }}</span>
-          </div>
-          <div class="flex flex-row items-center space-x-3">
-            <div class="bg-indigo-600 rounded-2xl rounded-tr-none p-3 max-w-xs">
-              <p class="text-sm text-white">{{ message.content }}</p>
-            </div>
-
-            <div
-              class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"
-            >
-              <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </div>
+    <div *ngFor="let message of messages; trackBy: trackByMessageId" class="mb-4">
+      <!-- System Messages (JOIN/LEAVE) -->
+      <div *ngIf="isSystemMessage(message)" class="flex justify-center">
+        <div class="bg-gray-700 text-gray-300 text-xs px-3 py-1 rounded-full">
+          <span *ngIf="message.type === 'JOIN'">{{ message.sender }} joined the chat</span>
+          <span *ngIf="message.type === 'LEAVE'">{{ message.sender }} left the chat</span>
         </div>
-      </ng-container>
-
-      <div *ngIf="message.type === 'JOIN'" class="system-notification">
-        {{ message.sender }} joined the chat
       </div>
 
-      <div *ngIf="message.type === 'LEAVE'" class="system-notification">
-        {{ message.sender }} left the chat
+      <!-- Chat Messages -->
+      <!-- Chat Messages - User's own messages (RIGHT SIDE) -->
+      <div
+        *ngIf="message.type === 'CHAT' && isUserMessage(message)"
+        class="flex items-end gap-2 flex-row-reverse ml-auto w-fit"
+      >
+        <!-- Avatar -->
+        <div
+          class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-indigo-600"
+        >
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+
+        <!-- Message Content -->
+        <div class="flex flex-col max-w-xs items-end">
+          <!-- Sender name and time -->
+          <div class="flex items-center gap-2 mb-1 text-xs flex-row-reverse">
+            <span class="font-semibold text-gray-300">{{ message.sender }}</span>
+            <span class="text-gray-500">{{ getMessageTime(message.timestamp) }}</span>
+          </div>
+
+          <!-- Message Bubble -->
+          <div class="rounded-2xl p-3 bg-indigo-600 rounded-tr-none">
+            <p class="text-sm text-white">{{ message.content }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Messages - Other users' messages (LEFT SIDE) -->
+      <div
+        *ngIf="message.type === 'CHAT' && !isUserMessage(message)"
+        class="flex items-end gap-2 mr-auto w-fit"
+      >
+        <!-- Avatar -->
+        <div
+          class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-600"
+        >
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+
+        <!-- Message Content -->
+        <div class="flex flex-col max-w-xs items-start">
+          <!-- Sender name and time -->
+          <div class="flex items-center gap-2 mb-1 text-xs">
+            <span class="font-semibold text-gray-300">{{ message.sender }}</span>
+            <span class="text-gray-500">{{ getMessageTime(message.timestamp) }}</span>
+          </div>
+
+          <!-- Message Bubble -->
+          <div class="rounded-2xl p-3 bg-gray-700 rounded-tl-none">
+            <p class="text-sm text-white">{{ message.content }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="border-t border-gray-700 bg-gray-800 w-full p-2 flex items-center">
+  <div class="border-t border-gray-700 bg-gray-800 w-full p-2 flex items-center gap-2">
     <input
       type="text"
       [(ngModel)]="newMessage"
@@ -94,7 +128,7 @@
       class="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
     />
     <button
-      class="p-2 mx-4 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-colors min-w-[120px] text-white font-semibold"
+      class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-colors text-white font-semibold flex-shrink-0"
       (click)="sendMessage()"
       [disabled]="!newMessage.trim()"
     >

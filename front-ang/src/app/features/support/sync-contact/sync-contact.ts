@@ -122,6 +122,14 @@ export class SyncContact implements OnInit, OnDestroy {
   }
 
   isUserMessage(message: ChatMessage): boolean {
+    console.log(
+      'Comparing:',
+      message.sender,
+      'with',
+      this.username,
+      'Result:',
+      message.sender === this.username
+    );
     return message.sender === this.username;
   }
 
