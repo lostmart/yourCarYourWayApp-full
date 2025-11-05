@@ -23,4 +23,21 @@ This PoC validates the core architecture decisions for the Support Service micro
 
 This PoC implements a subset of the Support Service from the Your Car Your Way architecture:
 
-![Your Car Your Way Architecture](./images/YourCarYourWayArchitecture.png)
+```text
+┌─────────────────────────────────────────┐
+│          Angular Frontend               │
+│   (Live Chat User Interface)            │
+└────────────────┬────────────────────────┘
+                 │ WebSocket (STOMP)
+                 ↓
+┌─────────────────────────────────────────┐
+│      Spring Boot Backend                │
+│   (WebSocket Server + Message Handler)  │
+└────────────────┬────────────────────────┘
+                 │
+                 ↓
+┌─────────────────────────────────────────┐
+│         PostgreSQL Database             │
+│  (chat_sessions + chat_messages tables) │
+└─────────────────────────────────────────┘
+```
