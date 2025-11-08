@@ -36,15 +36,15 @@ public class ChatController {
      */
     @MessageMapping("/chat.join")
     @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage, 
-                                SimpMessageHeaderAccessor headerAccessor) {
+    public ChatMessage addUser(@Payload ChatMessage chatMessage,
+            SimpMessageHeaderAccessor headerAccessor) {
         // Store username in WebSocket session
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        
+
         // Set server-side timestamp and ensure type is JOIN
         chatMessage.setTimestamp(Instant.now());
         chatMessage.setType(MessageType.JOIN);
-        
+
         return chatMessage;
     }
 }

@@ -112,6 +112,8 @@ export class SyncContact implements OnInit, OnDestroy {
   }
 
   getMessageTime(timestamp: string): string {
+    console.log('Raw timestamp:', timestamp);
+    console.log('Type:', typeof timestamp);
     const date = new Date(timestamp);
     let hours = date.getHours();
     const minutes = date.getMinutes();
