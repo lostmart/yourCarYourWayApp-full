@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -16,7 +17,8 @@ import java.util.List;
 /**
  * WebSocket configuration for the chat functionality.
  * 
- * This class sets up the infrastructure for real-time bidirectional communication
+ * This class sets up the infrastructure for real-time bidirectional
+ * communication
  * between the server and clients using WebSocket and STOMP protocol.
  * 
  * Key components configured:
@@ -29,9 +31,10 @@ import java.util.List;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    
+
     /**
-     * Register STOMP endpoints that clients will use to connect to the WebSocket server.
+     * Register STOMP endpoints that clients will use to connect to the WebSocket
+     * server.
      * 
      * Endpoint: /ws
      * - This is the URL clients connect to: ws://localhost:8080/ws
@@ -45,31 +48,33 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * CORS:
      * - setAllowedOriginPatterns("*") allows connections from any origin
      * - For PoC, this is fine
-     * - In production, specify exact origins: setAllowedOrigins("https://yourcarway.com")
+     * - In production, specify exact origins:
+     * setAllowedOrigins("https://yourcarway.com")
      * 
      * @param registry the STOMP endpoint registry
      */
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
+    public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 
     /**
-     * Configure the message broker that will route messages between clients and server.
+     * Configure the message broker that will route messages between clients and
+     * server.
      * 
      * Two types of destinations are configured:
      * 
      * 1. Application Destination Prefix: /app
-     *    - Used for messages FROM clients TO server
-     *    - Example: Client sends to /app/chat.send
-     *    - These messages are routed to @MessageMapping methods in controllers
+     * - Used for messages FROM clients TO server
+     * - Example: Client sends to /app/chat.send
+     * - These messages are routed to @MessageMapping methods in controllers
      * 
      * 2. Simple Broker: /topic
-     *    - Used for messages FROM server TO clients (broadcasting)
-     *    - Example: Server sends to /topic/public
-     *    - All clients subscribed to /topic/public will receive the message
+     * - Used for messages FROM server TO clients (broadcasting)
+     * - Example: Server sends to /topic/public
+     * - All clients subscribed to /topic/public will receive the message
      * 
      * Message Flow Example:
      * 1. Client sends message to: /app/chat.send
@@ -78,14 +83,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * 4. All clients subscribed to /topic/public receive it instantly
      * 
      * Why "simple" broker?
-     * - In-memory message routing (no external message broker like RabbitMQ/ActiveMQ)
+     * - In-memory message routing (no external message broker like
+     * RabbitMQ/ActiveMQ)
      * - Perfect for PoC and small-scale applications
      * - For production with high load, consider external broker
      * 
      * @param registry the message broker registry
      */
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
+    public void configureMessageBroker(@NonNull MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/topic");
     }
@@ -96,7 +102,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * This is critical for proper JSON serialization/deserialization of messages.
      * 
      * Problem being solved:
-     * - By default, Spring's WebSocket message converter doesn't handle Java 8 date/time types
+     * - By default, Spring's WebSocket message converter doesn't handle Java 8
+     * date/time types
      * - Angular sends timestamps in ISO-8601 format: "2025-11-01T19:15:34.730Z"
      * - Without JavaTimeModule, Jackson can't deserialize this into Instant
      * 
@@ -112,19 +119,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * @return false to keep default converters in addition to this one
      */
     @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+    public boolean configureMessageConverters(@NonNull List<MessageConverter> messageConverters) {
         // Create ObjectMapper with Java 8 date/time support
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
+
         // Create Jackson message converter with configured ObjectMapper
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setObjectMapper(objectMapper);
-        
+
         // Add our converter to the list
         messageConverters.add(converter);
-        
+
         // Return false to keep default converters as well
         return false;
     }
